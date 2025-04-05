@@ -94,7 +94,13 @@ Format like:
       ],
     });
 
-    const structuredData = JSON.parse(chatRes.choices[0].message.content);
+    let structuredData;
+    try {
+      structuredData = JSON.parse(chatRes.choices[0].message.content);
+    } catch (jsonError) {
+      console.error('JSON Parse Error:', jsonError);
+      return res.status(500).send('OpenAI did not return valid JSON.');
+    }
 
     const workbook = new ExcelJS.Workbook();
     const sheet = workbook.addWorksheet('Medical Coding');
