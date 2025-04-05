@@ -54,13 +54,7 @@ app.post('/upload', async (req, res) => {
     const pdfBuffer = req.files.pdf.data;
     const pdfDoc = await PDFDocument.load(pdfBuffer);
     const pages = pdfDoc.getPages();
-    let extractedText = '';
-
-    for (const page of pages) {
-      const { width, height } = page.getSize();
-      const text = page.getTextContent ? await page.getTextContent() : 'Text content not available';
-      extractedText += `\nPage size: ${width}x${height} [text omitted or unreadable]\n`;
-    }
+    let extractedText = ``;
 
     const prompt = `
 You are a medical coder. A doctor has shared the following prescription:
