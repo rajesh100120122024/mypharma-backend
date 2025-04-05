@@ -4,7 +4,6 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const fileUpload = require('express-fileupload');
-const { PDFDocument } = require('pdf-lib');
 const ExcelJS = require('exceljs');
 require('dotenv').config();
 const OpenAI = require('openai');
@@ -52,26 +51,31 @@ app.post('/upload', async (req, res) => {
 
   try {
     const pdfBuffer = req.files.pdf.data;
-    const { fromBuffer } = require("pdf2pic");
+    const { PDFImage } = require("pdf-image");
     const Tesseract = require("tesseract.js");
 
-    const convert = fromBuffer(pdfBuffer, {
-      density: 150,
-      saveFilename: "ocr-page",
-      savePath: "./tmp",
-      format: "png",
-      width: 1000,
-      height: 1400
+        const fs = require("fs");
+    const path = require("path");
+    const tmpPath = path.resolve("./tmp");
+    if (!fs.existsSync(tmpPath)) fs.mkdirSync(tmpPath);
+
+    const pdfImage = new PDFImage("./tmp/input.pdf", {
+      convertOptions: {
+        "-density": "150",
+        "-quality": "100"
+      },
+      outputDirectory: tmpPath
     });
 
-    const output = await convert(1); // First page
-    console.log("🖼 OCR image saved:", output.path);
+    fs.writeFileSync("./tmp/input.pdf", pdfBuffer);
+    const imagePath = await pdfImage.convertPage(0); // first page
+    console.log("🖼 OCR image generated:", imagePath);
 
-    const ocrResult = await Tesseract.recognize(output.path, "eng", {
+    const ocrResult = await Tesseract.recognize(imagePath, "eng", {
       logger: m => console.log(m),
     });
 
-    const extractedText = ocrResult.data.text;
+    const extractedText = ocrResult.data.text.trim();
 
     const prompt = `
 You are a medical coder. A doctor has shared the following prescription:
