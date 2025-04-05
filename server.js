@@ -95,9 +95,12 @@ Return only valid JSON array with no explanation or markdown, like:
     });
 
     let structuredData;
+    const rawResponse = chatRes.choices[0].message.content.trim();
+    console.log('🔍 GPT-4 raw response:', rawResponse);
     try {
-      structuredData = JSON.parse(chatRes.choices[0].message.content);
+      structuredData = JSON.parse(rawResponse);
     } catch (jsonError) {
+      console.error('GPT-4 raw response (not JSON):', rawResponse);
       console.error('JSON Parse Error:', jsonError);
       return res.status(500).send('OpenAI did not return valid JSON.');
     }
