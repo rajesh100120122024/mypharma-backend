@@ -1,10 +1,10 @@
-// Updated MyPharma backend using GPT-4 with medical coding and pdf-parse fallback
+// Updated MyPharma backend using GPT-4 with medical coding and pdf-lib fallback
 
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const fileUpload = require('express-fileupload');
-const pdfParse = require('pdf-parse');
+const { PDFDocument } = require('pdf-lib');
 const ExcelJS = require('exceljs');
 require('dotenv').config();
 const OpenAI = require('openai');
@@ -51,9 +51,16 @@ app.post('/upload', async (req, res) => {
   }
 
   try {
-    const dataBuffer = req.files.pdf.data;
-    const pdfData = await pdfParse(dataBuffer);
-    const extractedText = pdfData.text;
+    const pdfBuffer = req.files.pdf.data;
+    const pdfDoc = await PDFDocument.load(pdfBuffer);
+    const pages = pdfDoc.getPages();
+    let extractedText = '';
+
+    for (const page of pages) {
+      const { width, height } = page.getSize();
+      const text = page.getTextContent ? await page.getTextContent() : 'Text content not available';
+      extractedText += `\nPage size: ${width}x${height} [text omitted or unreadable]\n`;
+    }
 
     const prompt = `
 You are a medical coder. A doctor has shared the following prescription:
