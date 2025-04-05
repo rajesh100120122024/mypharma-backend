@@ -73,7 +73,7 @@ Please extract and return a structured JSON array with:
 - RxNorm or ATC Code (use RxNorm if both are known)
 - Dosage or Frequency
 
-Format like:
+Return only valid JSON array with no explanation or markdown, like:
 [
   {
     "patient": "Rajesh",
