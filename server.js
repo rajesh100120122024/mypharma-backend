@@ -54,7 +54,18 @@ app.post('/upload', async (req, res) => {
     const pdfBuffer = req.files.pdf.data;
     const pdfDoc = await PDFDocument.load(pdfBuffer);
     const pages = pdfDoc.getPages();
-    let extractedText = ``;
+    let extractedText = `
+Patient Name: Rajesh
+Date: 04-Apr-2025
+
+Diagnosis:
+- Fever
+- Cough
+
+Prescribed Medicines:
+- Paracetamol 500mg - Twice a day
+- Cough Syrup - 5ml after food
+`;
 
     const prompt = `
 You are a medical coder. A doctor has shared the following prescription:
