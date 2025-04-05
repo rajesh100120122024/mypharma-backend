@@ -18,6 +18,8 @@
     "express-fileupload": "^1.5.1",
     "openai": "^4.91.1",
     "pdf-lib": "^1.17.1",
-    "pdf-parse": "^1.1.1"
+    "pdf-parse": "^1.1.1",
+    "pdf2pic": "^3.1.4",
+    "tesseract.js": "^6.0.0"
   }
 }

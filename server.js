@@ -52,9 +52,26 @@ app.post('/upload', async (req, res) => {
 
   try {
     const pdfBuffer = req.files.pdf.data;
-    const pdfParse = require('pdf-parse');
-    const pdfData = await pdfParse(pdfBuffer);
-    const extractedText = pdfData.text;
+    const { fromBuffer } = require("pdf2pic");
+    const Tesseract = require("tesseract.js");
+
+    const convert = fromBuffer(pdfBuffer, {
+      density: 150,
+      saveFilename: "ocr-page",
+      savePath: "./tmp",
+      format: "png",
+      width: 1000,
+      height: 1400
+    });
+
+    const output = await convert(1); // First page
+    console.log("🖼 OCR image saved:", output.path);
+
+    const ocrResult = await Tesseract.recognize(output.path, "eng", {
+      logger: m => console.log(m),
+    });
+
+    const extractedText = ocrResult.data.text;
 
     const prompt = `
 You are a medical coder. A doctor has shared the following prescription:
