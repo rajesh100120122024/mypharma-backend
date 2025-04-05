@@ -52,16 +52,9 @@ app.post('/upload', async (req, res) => {
 
   try {
     const pdfBuffer = req.files.pdf.data;
-    const pdfDoc = await PDFDocument.load(pdfBuffer);
-    const pages = pdfDoc.getPages();
-    let extractedText = '';
-    for (const page of pages) {
-      const { width, height } = page.getSize();
-      extractedText += `
-[Page ${pages.indexOf(page) + 1}] Size: ${width}x${height}
-`;
-      // This is a fallback: real text extraction can be added using OCR if needed
-    }
+    const pdfParse = require('pdf-parse');
+    const pdfData = await pdfParse(pdfBuffer);
+    const extractedText = pdfData.text;
 
     const prompt = `
 You are a medical coder. A doctor has shared the following prescription:
